@@ -1,9 +1,11 @@
 import sys
+import random
 import pygame
 from const import *
 from game import *
 from ship import *
 from rocket import *
+from asteroid import *
 
 
 class Asteroids:
@@ -14,6 +16,7 @@ class Asteroids:
         self.clock = pygame.time.Clock()
         self.FPS = FPS
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.count = 0
         pygame.display.set_caption("Asteroids")
         pygame.display.set_icon(pygame.image.load("assets/images/icon_asteroid.png"))
 
@@ -25,11 +28,46 @@ class Asteroids:
         screen = self.screen
         game = self.game
         ship = self.game.ship
+        cooldown = 0
+
         while True:
+            if game.gameOver == True:
+                break
+
+            self.count += 1
+            if cooldown != 0:
+                cooldown-=1
+            if self.count % 50 == 0:
+                ran = random.choice([1, 1, 1, 2, 2, 3, 4, 4, 4])
+                game.asteroids.append(Asteroid(ran))
+
+            if ship.lives == 0:
+                game.gameOver = True
+
             game.draw_screen(screen)
             game.draw_ship(screen)
             game.draw_rockets(screen)
+            game.draw_asteroids(screen)
+            game.draw_lives(screen)
+            game.draw_score(screen)
+
             ship.isMoveForward = False
+
+            for a in game.asteroids:
+                a.rotatedRect.x += a.xv
+                a.rotatedRect.y += a.yv
+
+                if a.rotatedRect.colliderect(ship.rotatedRect):
+                    print(ship.lives)
+                    ship.lives -= 1
+                    game.asteroids.clear()
+                    ship.spawn()
+
+                for b in ship.rockets:
+                    if a.rotatedRect.colliderect(b.rotatedRect):
+                        ship.score +=1
+                        game.asteroids.pop(game.asteroids.index(a))
+                        break
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
@@ -42,8 +80,9 @@ class Asteroids:
                 ship.isAfterForward = 30
 
             if keys[pygame.K_SPACE]:
-                ship.rockets.append(Rocket(ship))
-                print(ship.rockets)
+                if cooldown == 0:
+                    ship.rockets.append(Rocket(ship))
+                    cooldown = 20
 
             for b in ship.rockets:
                 b.move()
@@ -54,7 +93,6 @@ class Asteroids:
 
             if ship.isAfterForward != 0 and ship.isMoveForward == False:
                 ship.moveForward(ship.isAfterForward)
-                print(ship.isAfterForward)
                 ship.isAfterForward -= 1
 
             for event in pygame.event.get():
