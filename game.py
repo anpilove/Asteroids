@@ -18,6 +18,10 @@ class Game:
         if self.ship.isMoveForward:
             surface.blit(self.ship.rotatedSurfEngine, self.ship.rotatedRect)
 
+    def draw_rockets(self, surface: pygame.surface):
+        for b in self.ship.rockets:
+            b.draw(surface)
+
 
 
 

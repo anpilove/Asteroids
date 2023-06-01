@@ -6,6 +6,7 @@ from const import *
 class Ship:
 
     def __init__(self):
+        self.rockets = []
         self.image = pygame.image.load("assets/images/ship.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
 

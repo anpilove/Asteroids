@@ -11,8 +11,6 @@ class Asteroids:
         pygame.init()
 
         self.game = Game()
-        self.WINDOW_WIDTH = 800
-        self.WINDOW_HEIGHT = 600
         self.clock = pygame.time.Clock()
         self.FPS = FPS
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -30,7 +28,7 @@ class Asteroids:
         while True:
             game.draw_screen(screen)
             game.draw_ship(screen)
-            # game.draw_rockets(screen)
+            game.draw_rockets(screen)
             ship.isMoveForward = False
 
             keys = pygame.key.get_pressed()
@@ -44,12 +42,13 @@ class Asteroids:
                 ship.isAfterForward = 30
 
             if keys[pygame.K_SPACE]:
-                ship.Rockets.append(Rocket(ship))
-                print(ship.Rockets)
+                ship.rockets.append(Rocket(ship))
+                print(ship.rockets)
 
-            # for b in ship.Rockets:
-            #     b.move()
-
+            for b in ship.rockets:
+                b.move()
+                if b.checkOffScreen():
+                    ship.rockets.pop(ship.rockets.index(b))
 
             ship.updateLocation()
 
@@ -62,8 +61,6 @@ class Asteroids:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-
-
 
             pygame.display.flip()
             self.clock.tick(self.FPS)
